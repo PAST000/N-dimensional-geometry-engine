@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D engine test</title>
+    <style>
+        body, html{
+            margin: 0;
+        }
+
+        canvas{
+            width: 1000px;
+            height: 800px;
+            display: block;
+            border: 1px solid black;
+            margin: 10px;
+        }
+    </style>
+    <script type="module">
+        import Engine from "./Engine.js";
+
+        window.onload = function() {
+            const canvas = document.getElementById("cnv");
+            if (!canvas) {
+                console.error("Canvas not found!");
+                return;
+            }
+        };
+    </script>
+</head>
+<body>
+    <canvas id="cnv"></canvas>
+</body>
+</html>
