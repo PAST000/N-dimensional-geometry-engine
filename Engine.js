@@ -69,9 +69,9 @@ export default class Engine{
     }
  
     rotateAll(deg1, deg2){
-        for(let i = 0; i < this.#vertices.length; i++)
-            if(!this.#vertices[i].rotate(this.rotationAxis1, this.rotationAxis2, deg1, deg2)) return false;
-        this.draw();
+	for(let i = 0; i < this.#vertices.length; i++)
+	    if(!this.#vertices[i].rotate(this.rotationAxis1, this.rotationAxis2, deg1, deg2)) return false;
+	    this.draw();
         return true;	
     }
  
@@ -87,21 +87,22 @@ export default class Engine{
             this.setStyle(this.#objects[i].fillColor === undefined ? this.defaultFillColor : this.#objects[i].fillColor, 
                           this.#objects[i].lineColor === undefined ? this.defaultLineColor : this.#objects[i].lineColor,
                           this.#objects[i].lineWidth === undefined ? this.defaultLineWidth : this.#objects[i].lineWidth);
-            for(let j = 0; j < this.#objects[i].faces.length; j++){
-                let projection = [];
-                for(let k = 0; k < this.#objects[i].faces[j].length; k++)
-                    projection.push(this.#objects[i].faces[j][k].project(2));	
-    
-                this.#ctx.beginPath();
-                this.#ctx.moveTo(this.#center[0] + projection[0][0], this.#center[1] + projection[0][1]);
-                for(let k = 1; k < projection.length; k++)
-                    this.#ctx.lineTo(this.#center[0] + projection[k][0], this.#center[1] + projection[k][1]);
-                this.#ctx.closePath();
-                this.#ctx.stroke();
-                this.#ctx.fill();
+		for(let j = 0; j < this.#objects[i].faces.length; j++){
+		    let projection = [];
+		    for(let k = 0; k < this.#objects[i].faces[j].length; k++)
+		        projection.push(this.#objects[i].faces[j][k].project(2));	
+ 
+		    this.#ctx.beginPath();
+            this.#ctx.moveTo(this.#center[0] + projection[0][0], this.#center[1] + projection[0][1]);
+            for(let k = 1; k < projection.length; k++)
+                this.#ctx.lineTo(this.#center[0] + projection[k][0], this.#center[1] + projection[k][1]);
+            this.#ctx.closePath();
+            this.#ctx.stroke();
+            this.#ctx.fill();
 		}
         } 
     }
+ 
  
     #mouseClick(M){}
     #mouseStop(){}
@@ -122,20 +123,20 @@ export default class Engine{
  
     setPrecision(prec) { 
 	    if(typeof prec !== "number" || isNaN(prec) || prec <= 4) return false;
-            this.precision = parsetInt(prec);
-            for(let i = 0; i < this.#objects.length; i++)
-		        if(!this.#objects[i].setPrecision(this.precision)) return false;
-	        this.updateVertices();
+        this.precision = parsetInt(prec);
+        for(let i = 0; i < this.#objects.length; i++)
+		if(!this.#objects[i].setPrecision(this.precision)) return false;
+	    this.updateVertices();
         return true;
     }
     setSensitivity(sens){ 
 	    if(typeof sens !== "number" || isNaN(sens) || sens <= 0) return false;
-            this.sensitivity = parseFloat(sens); 
+        this.sensitivity = parseFloat(sens); 
 	    return true;
     }
     setArrowSensitivityFactor(fac){ 
 	    if(typeof fac !== "number" || isNaN(fac) || fac <= 0) return false;
-            this.arrowSensitivityFactor = parseFloat(fac); 
+        this.arrowSensitivityFactor = parseFloat(fac); 
 	    return true;
     }
 };
