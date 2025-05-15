@@ -10,17 +10,18 @@ export default class Cuboid extends Figure{
         this.width = parseFloat(Z);
         
         this.vertices = [
-            new HyperVertex([cntr.x + this.length/2, cntr.y + this.height/2, cntr.z + this.width/2]), 
-            new HyperVertex([cntr.x + this.length/2, cntr.y + this.height/2, cntr.z - this.width/2]),
-            new HyperVertex([cntr.x - this.length/2, cntr.y + this.height/2, cntr.z - this.width/2]),
-            new HyperVertex([cntr.x - this.length/2, cntr.y + this.height/2, cntr.z + this.width/2]),
-            new HyperVertex([cntr.x + this.length/2, cntr.y - this.height/2, cntr.z + this.width/2]), 
-            new HyperVertex([cntr.x + this.length/2, cntr.y - this.height/2, cntr.z - this.width/2]),
-            new HyperVertex([cntr.x - this.length/2, cntr.y - this.height/2, cntr.z - this.width/2]),
-            new HyperVertex([cntr.x - this.length/2, cntr.y - this.height/2, cntr.z + this.width/2])
+	    this.center.toTranslated( this.length/2,  this.height/2,  this.width/2),
+	    this.center.toTranslated( this.length/2,  this.height/2, -this.width/2),
+	    this.center.toTranslated(-this.length/2,  this.height/2, -this.width/2),
+	    this.center.toTranslated(-this.length/2,  this.height/2,  this.width/2),
+	    this.center.toTranslated( this.length/2, -this.height/2,  this.width/2),
+	    this.center.toTranslated( this.length/2, -this.height/2, -this.width/2),
+	    this.center.toTranslated(-this.length/2, -this.height/2, -this.width/2),
+	    this.center.toTranslated(-this.length/2, -this.height/2,  this.width/2),
         ];
 
-        this.faces = [  // Kolejność ścian: Góra, prawo, dół, lewo, tył, przód
+	// Kolejność ścian: Góra, prawo, dół, lewo, tył, przód
+        this.faces = [             
             [this.vertices[0], this.vertices[1], this.vertices[2],this.vertices[3]],
             [this.vertices[0], this.vertices[4], this.vertices[5],this.vertices[1]],
             [this.vertices[4], this.vertices[5], this.vertices[6],this.vertices[7]],

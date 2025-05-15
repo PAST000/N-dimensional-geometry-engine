@@ -9,45 +9,46 @@ export default class Cross extends Figure{
         this.armFactor = parseFloat(arm);   // Z przedziału (0;1), współczynnik szerokości ramienia do ogólnej szerokości
         this.armSize = parseFloat(len*arm);
 
-        this.vertices = [  // Kolejność wierzchołków: góra, prawo, dół, lewo, tył, przód, środek
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y + len/2, cntr.z + this.armSize/2]),
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y + len/2, cntr.z - this.armSize/2]),
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y + len/2, cntr.z - this.armSize/2]),
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y + len/2, cntr.z + this.armSize/2]),
+	// Kolejność wierzchołków: góra, prawo, dół, lewo, za, przed, środek
+        this.vertices = [  
+	    this.center.toTranslated( this.armSize/2, this.length/2,  this.armSize/2),
+            this.center.toTranslated( this.armSize/2, this.length/2, -this.armSize/2),
+            this.center.toTranslated(-this.armSize/2, this.length/2, -this.armSize/2),
+            this.center.toTranslated(-this.armSize/2, this.length/2,  this.armSize/2),
 
-            new HyperVertex([cntr.x + len/2, cntr.y + this.armSize/2, cntr.z + this.armSize/2]),
-            new HyperVertex([cntr.x + len/2, cntr.y - this.armSize/2, cntr.z + this.armSize/2]),
-            new HyperVertex([cntr.x + len/2, cntr.y - this.armSize/2, cntr.z - this.armSize/2]),
-            new HyperVertex([cntr.x + len/2, cntr.y + this.armSize/2, cntr.z - this.armSize/2]),
+            this.center.toTranslated( this.length/2,  this.length/2,  this.armSize/2),
+            this.center.toTranslated( this.length/2, -this.length/2,  this.armSize/2),
+            this.center.toTranslated( this.length/2, -this.length/2, -this.armSize/2),
+            this.center.toTranslated( this.length/2,  this.length/2, -this.armSize/2),
 
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y - len/2, cntr.z + this.armSize/2]),
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y - len/2, cntr.z - this.armSize/2]),
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y - len/2, cntr.z - this.armSize/2]),
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y - len/2, cntr.z + this.armSize/2]),
+            this.center.toTranslated( this.armSize/2, -this.length/2,  this.armSize/2),
+            this.center.toTranslated( this.armSize/2, -this.length/2, -this.armSize/2),
+            this.center.toTranslated(-this.armSize/2, -this.length/2, -this.armSize/2),
+            this.center.toTranslated(-this.armSize/2, -this.length/2,  this.armSize/2),
 
-            new HyperVertex([cntr.x - len/2, cntr.y + this.armSize/2, cntr.z + this.armSize/2]),
-            new HyperVertex([cntr.x - len/2, cntr.y - this.armSize/2, cntr.z + this.armSize/2]),
-            new HyperVertex([cntr.x - len/2, cntr.y - this.armSize/2, cntr.z - this.armSize/2]),
-            new HyperVertex([cntr.x - len/2, cntr.y + this.armSize/2, cntr.z - this.armSize/2]),
+            this.center.toTranslated(-this.length/2,  this.armSize/2,  this.armSize/2),
+            this.center.toTranslated(-this.length/2, -this.armSize/2,  this.armSize/2),
+            this.center.toTranslated(-this.length/2, -this.armSize/2, -this.armSize/2),
+            this.center.toTranslated(-this.length/2,  this.armSize/2, -this.armSize/2),
 
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y + this.armSize/2, cntr.z + len/2]),
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y - this.armSize/2, cntr.z + len/2]),
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y - this.armSize/2, cntr.z + len/2]),
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y + this.armSize/2, cntr.z + len/2]),
+            this.center.toTranslated( this.armSize/2,  this.armSize/2, this.length/2),
+            this.center.toTranslated( this.armSize/2, -this.armSize/2, this.length/2),
+            this.center.toTranslated(-this.armSize/2, -this.armSize/2, this.length/2),
+            this.center.toTranslated(-this.armSize/2,  this.armSize/2, this.length/2),
 
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y + this.armSize/2, cntr.z - len/2]),
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y - this.armSize/2, cntr.z - len/2]),
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y - this.armSize/2, cntr.z - len/2]),
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y + this.armSize/2, cntr.z - len/2]),
+	    this.center.toTranslated( this.armSize/2,  this.armSize/2, -this.length/2),
+            this.center.toTranslated( this.armSize/2, -this.armSize/2, -this.length/2),
+            this.center.toTranslated(-this.armSize/2, -this.armSize/2, -this.length/2),
+            this.center.toTranslated(-this.armSize/2,  this.armSize/2, -this.length/2),
 
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y + this.armSize/2, cntr.z + this.armSize/2]),  
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y - this.armSize/2, cntr.z + this.armSize/2]),  
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y - this.armSize/2, cntr.z + this.armSize/2]),  
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y + this.armSize/2, cntr.z + this.armSize/2]),  
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y + this.armSize/2, cntr.z - this.armSize/2]),  
-            new HyperVertex([cntr.x + this.armSize/2, cntr.y - this.armSize/2, cntr.z - this.armSize/2]),  
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y - this.armSize/2, cntr.z - this.armSize/2]),  
-            new HyperVertex([cntr.x - this.armSize/2, cntr.y + this.armSize/2, cntr.z - this.armSize/2])   
+            this.center.toTranslated( this.armSize/2,  this.armSize/2,  this.armSize/2),
+            this.center.toTranslated( this.armSize/2, -this.armSize/2,  this.armSize/2),
+            this.center.toTranslated(-this.armSize/2, -this.armSize/2,  this.armSize/2),
+            this.center.toTranslated(-this.armSize/2,  this.armSize/2,  this.armSize/2),
+            this.center.toTranslated( this.armSize/2,  this.armSize/2, -this.armSize/2),
+            this.center.toTranslated( this.armSize/2, -this.armSize/2, -this.armSize/2),
+            this.center.toTranslated(-this.armSize/2, -this.armSize/2, -this.armSize/2),
+            this.center.toTranslated(-this.armSize/2,  this.armSize/2, -this.armSize/2) 
         ];
 
         this.faces = [ 

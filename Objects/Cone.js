@@ -5,10 +5,10 @@ import Color from "./Color.js";
 export default class Cone extends Figure{
     constructor(cntr, rad, height, precision, fillColor = new Color(0, 0, 50, 0.2), lineColor = new Color(0, 0, 80, 0.5), lineWidth = 0.4){  //precision - liczba wierzchołków podstawy
         super(cntr, fillColor, lineColor, lineWidth);
-        this.baseCenter = new HyperVertex([cntr.x, cntr.y + height/2, cntr.z]);  // TODO
         this.radius = parseFloat(rad);
         this.height = parseFloat(height);
         this.precision = parseFloat(precision);
+	this.baseCenter = this.center.toTranslated([0, -this.height/2]);
 
         this.createVerticies();
         this.createFaces();
@@ -16,14 +16,13 @@ export default class Cone extends Figure{
 
     createVerticies(){
         if(this.precision < 3) return;
-        this.vertices = [new HyperVertex([this.center.x, this.center.y - this.height/2, this.center.z])];
+        this.vertices = [this.center.toTranslated([0, this.height/2])];
         var theta = 2 * Math.PI / this.precision;
 
-        for(var i = 0; i < this.precision; i++){
-            this.vertices.push(new HyperVertex([this.baseCenter.x + this.radius * Math.cos(theta * i),
-                                                this.baseCenter.y, 
-                                                this.baseCenter.z + this.radius * Math.sin(theta * i)]));
-        }
+        for(var i = 0; i < this.precision; i++)
+	   this.vetices.push(this.baseCenter.toTranslated([this.radius * Math.cos(theta * i), 
+							   0, 
+							   this.radius * Math.sin(theta * i)]))
     }
 
     createFaces(){

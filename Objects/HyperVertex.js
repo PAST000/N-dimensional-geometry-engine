@@ -7,12 +7,14 @@ export default class HyperVertex{
             this.length += this.cords[i]*this.cords[i];
         this.length = Math.pow(this.length, 1/this.dim);
     }
+
     project(dim){ 
         if(typeof dim !== "number" || dim < 1 || isNaN(dim)) return false;
         if(dim < 3) return this.cords.slice(0, dim);
         if(dim <= this.dim) return new HyperVertex(this.cords.slice(0, dim));
         return new HyperVertex(this.cords.concat(new Array(dim - this.dim).fill(0)));
     }
+
     dot(other){ 
         if(!other instanceof HyperVertex) return false;
         if(other.getLength() < this.dim) return false;
@@ -24,18 +26,11 @@ export default class HyperVertex{
         }
         return product;
     }
-    translate(arr, getNew = false){
+
+    translate(arr){
         if(arr.length > this.dim) return false;
-        if(getNew){
-            let translatedCords = this.cords;
-            for(let i = 0; i < arr.length; i++){
-                if(typeof arr[i] !== "number")
-                    return false;
-                translatedCords[i] += arr[i];
-            }
-            return new HyperVertex(translatedCords);
-        }
         let oldCords = this.cords;
+
         for(let i = 0; i < arr.length; i++){
             if(typeof arr[i] !== "number"){
                 this.cords = oldCords;
@@ -45,6 +40,17 @@ export default class HyperVertex{
         }
         return true;
     }
+
+    toTranslated(arr){
+        let translatedCords = this.cords;
+        for(let i = 0; i < arr.length; i++){
+            if(typeof arr[i] !== "number")
+                return false;
+            translatedCords[i] += arr[i];
+        }
+        return new HyperVertex(translatedCords);
+    }
+
     // Obrót o deg stopni w płaszczyźnie tworzonej przez osi o numerach(!) ax1,ax2 
     rotate(ax1, ax2, deg){
         if(typeof(ax1) !== "number" || typeof(ax2) !== "number") return false;
@@ -62,6 +68,7 @@ export default class HyperVertex{
         this.cords[axis2] = xl*Math.sin(deg) + this.cords[axis2]*Math.cos(deg);
         return true;
     }
+
     // Obrót wokół osi ax o deg stopni
     rotate3D(ax, deg){
         if(!is_numeric(deg) || !Array.isArray(ax) || ax.length < 3 || !is_numeric(ax[0]) || !is_numeric(ax[1]) || !is_numeric(ax[2])) return false;
@@ -79,6 +86,7 @@ export default class HyperVertex{
         this.cords[1] = y + S2*(y*(b*b - a*a - c*c - 1) + 2*b*(a*x + c*z)) + SC2*(c*x - a*z);
         this.cords[2] = z + S2*(z*(c*c - b*b - a*a - 1) + 2*c*(a*x + b*y)) + SC2*(a*y - b*x);
     }
+
     getCord(id){ 
         if(typeof this.cords[id] === "undefined") return false;
         return this.cords[id];
