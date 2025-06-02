@@ -17,6 +17,10 @@
     </style>
     <script type="module">
         import Engine from "./Engine.js";
+        import HyperVertex from "./Objects/HyperVertex.js";
+        import HyperCube from "./Objects/HyperCube.js";
+
+        const dims = 4;
 
         window.onload = function() {
             const canvas = document.getElementById("cnv");
@@ -24,10 +28,26 @@
                 console.error("Canvas not found!");
                 return;
             }
+            const engine = new Engine(canvas, 5, 1.1, 6);
+            engine.addObject(new HyperCube(new HyperVertex([0,0,0,0]), 200));
+            engine.draw();
+
+            document.getElementById("mainAxis").onchange = function(){
+            let mainAxis = document.getElementById("mainAxis").value;
+            let axis1 = document.getElementById("axis1").value;
+            let axis2 = document.getElementById("axis2").value;
+            engine.setRotationAxises(mainAxis, axis1, axis2);
+        }
         };
     </script>
 </head>
 <body>
     <canvas id="cnv"></canvas>
+    <label for="mainAxis">Main: </label>
+    <input name="mainAxis" id="mainAxis" type="number" min="0" max="1" value="0"><br>
+    <label for="axis1">Axis1: </label>
+    <input name="axis1" id="axis1" type="number" min="0" value="1"><br>
+    <label for="axis2">Axis2: </label>
+    <input name="axis2" id="axis2" type="number" min="0" value="2"><br>
 </body>
 </html>

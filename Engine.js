@@ -1,12 +1,13 @@
-import HyperVertex from "./Objects\HyperVertex.js";
-import Color from "./Objects\Color.js";
+import HyperVertex from "./Objects/HyperVertex.js";
+import Color from "./Objects/Color.js";
  
-import Cube from "./Objects\Cube.js";
-import Cuboid from "./Objects\Cuboid.js";
-import Plane from "./Objects\Plane.js";
-import Cross from "./Objects\Cross.js";
-import PseudoSphere from "./Objects\PseudoSphere.js";
-import Cone from "./Objects\Cone.js";
+import Cube from "./Objects/Cube.js";
+import Cuboid from "./Objects/Cuboid.js";
+import Plane from "./Objects/Plane.js";
+import Cross from "./Objects/Cross.js";
+import PseudoSphere from "./Objects/PseudoSphere.js";
+import Cone from "./Objects/Cone.js";
+import HyperCube from "./Objects/HyperCube.js";
  
 export default class Engine{
     #cnv; 
@@ -14,7 +15,12 @@ export default class Engine{
     #center;
     #objects = [];
     #vertices = [];
- 
+    #rotationAxisMain = 0;
+    #rotationAxis1 = 1;
+    #rotationAxis2 = 2;
+    #camera;
+    #direction;
+
     constructor(canvas, sens, sensFac, prec){
         this.#cnv = canvas;
 	    this.#cnv.width = this.#cnv.clientWidth;
@@ -26,10 +32,34 @@ export default class Engine{
         this.defaultFillColor = new Color(0, 0, 90, 0.12);
         this.defaultLineColor = new Color(0, 0, 100, 0.12);
         this.defaultLineWidth = 1;
-        this.rotationAxis1 = 0;
-        this.rotationAxis2 = 1;
-    
+
         this.updateCenter();
+        this.#camera = new HyperVertex([0,0,25,0]);
+        this.#direction = new HyperVertex([0,0,1,0]);
+
+        let a1 = new HyperVertex([1,0,0]);
+        let b1 = new HyperVertex([0,1,0]);
+        let a2 = new HyperVertex([1,2,3]);
+        let b2 = new HyperVertex([2,4,6]);
+        let a3 = new HyperVertex([1,2,3]);
+        let b3 = new HyperVertex([-1,-2,-3]);
+
+        console.log(a1.dot(b1));
+        console.log(a2.dot(b2));
+        console.log(a3.dot(b3));
+
+        this.#cnv.addEventListener("mousedown", () =>{
+            this.rotateAll(this.#rotationAxis1, 5);
+        });
+        document.addEventListener("keydown", (e) => {
+            if(e.ctrlKey) return;
+            let deg = this.arrowSensitivityFactor * this.sensitivity * Math.PI / 180;
+
+            if(e.code === "ArrowRight") this.rotateAll(this.#rotationAxis1,  deg);
+            if(e.code === "ArrowLeft")  this.rotateAll(this.#rotationAxis1, -deg);
+            if(e.code === "ArrowUp")    this.rotateAll(this.#rotationAxis2,  deg);
+            if(e.code === "ArrowDown")  this.rotateAll(this.#rotationAxis2, -deg);
+        });
     }
  
     updateCenter(){
@@ -40,9 +70,9 @@ export default class Engine{
     updateVertices(){
 	    let newVertices = new Set();
         for(let i = 0; i < this.#objects.length; i++)
-	    for(let j = 0; j < this.#objects[i].vertices.length; j++)
-	        newVertices.add(this.#objects[i].vertices[j]);   
-        this.vertices = Array.from(newVertices);
+            for(let j = 0; j < this.#objects[i].vertices.length; j++)
+                newVertices.add(this.#objects[i].vertices[j]);   
+        this.#vertices = Array.from(newVertices);
         this.draw();
     }
  
@@ -68,11 +98,14 @@ export default class Engine{
         return true;
     }
  
-    rotateAll(deg1, deg2){
-	for(let i = 0; i < this.#vertices.length; i++)
-	    if(!this.#vertices[i].rotate(this.rotationAxis1, this.rotationAxis2, deg1, deg2)) return false;
-	    this.draw();
-        return true;	
+    rotateAll(ax, deg){
+        for(let i = 0; i < this.#vertices.length; i++)
+            if(!this.#vertices[i].rotate(this.#rotationAxisMain, ax, deg)){
+                console.log('error');
+                return false;
+            }	
+        this.draw();
+        return true;
     }
  
     setStyle(fillColor = this.defaultFillColor, lineColor = this.defaultLineColor, lineWidth = this.defaultLineWidth){
@@ -90,12 +123,12 @@ export default class Engine{
 		for(let j = 0; j < this.#objects[i].faces.length; j++){
 		    let projection = [];
 		    for(let k = 0; k < this.#objects[i].faces[j].length; k++)
-		        projection.push(this.#objects[i].faces[j][k].project(2));	
- 
+		        projection.push(this.#objects[i].faces[j][k].perspectiveProjection(2, this.#camera, this.#direction));	
+
 		    this.#ctx.beginPath();
-            this.#ctx.moveTo(this.#center[0] + projection[0][0], this.#center[1] + projection[0][1]);
+            this.#ctx.moveTo(this.#center.getCord(0) + projection[0][0], this.#center.getCord(1) + projection[0][1]);
             for(let k = 1; k < projection.length; k++)
-                this.#ctx.lineTo(this.#center[0] + projection[k][0], this.#center[1] + projection[k][1]);
+                this.#ctx.lineTo(this.#center.getCord(0) + projection[k][0], this.#center.getCord(1) + projection[k][1]);
             this.#ctx.closePath();
             this.#ctx.stroke();
             this.#ctx.fill();
@@ -109,16 +142,21 @@ export default class Engine{
     #mouseMove(M){}
  
     checkType(obj) {
-        return [Cube, Cuboid, Plane, Cross, PseudoSphere, Cone].some(type => obj instanceof type);
+        return [Cube, Cuboid, Plane, Cross, PseudoSphere, Cone, HyperCube].some(type => obj instanceof type);
     }
  
-    setRotationAxises(ax1, ax2){
+    setRotationAxises(m, ax1, ax2){
+        let main = parseInt(m);
 	    let axis1 = parseInt(ax1);
 	    let axis2 = parseInt(ax2);
-        if(isNaN(axis1) || isNaN(axis2) || axis1 === axis2 ||
-	       ax1 < 0 || ax2 < 0 || ax1 >= this.center.getDims() || ax2 >= this.center.getDims()) return false;
-	    this.rotationAxis1 = ax1;
-	    this.rotationAxis2 = ax2;
+        if(main === axis1 || main === axis2 || axis1 === axis2) return false;
+
+        if(!isNaN(main) && main >= 0 && main <= this.center.getDim())
+            this.#rotationAxisMain = main;
+        if(!isNaN(axis1) && axis1 >= 0 && axis1 <= this.center.getDim())
+            this.#rotationAxis1 = axis1;
+        if(!isNaN(axis2) && axis2 >= 0 && axis2 <= this.center.getDim())
+            this.#rotationAxis2 = axis2;
     }
  
     setPrecision(prec) { 

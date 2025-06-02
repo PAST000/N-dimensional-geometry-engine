@@ -1,13 +1,13 @@
-import HyperVertex from "./Objects\HyperVertex.js";
-import Color from "./Objects\Color.js";
+import HyperVertex from "./Objects/HyperVertex.js";
+import Color from "./Objects/Color.js";
 import Engine from "./Engine.js";
  
-import Cube from "./Objects\Cube.js";
-import Cuboid from "./Objects\Cuboid.js";
-import Plane from "./Objects\Plane.js";
-import Cross from "./Objects\Cross.js";
-import PseudoSphere from "./Objects\PseudoSphere.js";
-import Cone from "./Objects\Cone.js";
+import Cube from "./Objects/Cube.js";
+import Cuboid from "./Objects/Cuboid.js";
+import Plane from "./Objects/Plane.js";
+import Cross from "./Objects/Cross.js";
+import PseudoSphere from "./Objects/PseudoSphere.js";
+import Cone from "./Objects/Cone.js";
  
 export default class Board{
     #engine;
