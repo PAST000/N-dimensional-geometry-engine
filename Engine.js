@@ -32,33 +32,25 @@ export default class Engine{
         this.defaultFillColor = new Color(0, 0, 90, 0.12);
         this.defaultLineColor = new Color(0, 0, 100, 0.12);
         this.defaultLineWidth = 1;
+        this.mouseDown = false;
+        this.mouseInitialX = 0;
+        this.mouseInitialY = 0;
 
         this.updateCenter();
-        this.#camera = new HyperVertex([0,0,25,0]);
+        this.#camera = new HyperVertex([0,0,325,0]);
         this.#direction = new HyperVertex([0,0,1,0]);
 
-        let a1 = new HyperVertex([1,0,0]);
-        let b1 = new HyperVertex([0,1,0]);
-        let a2 = new HyperVertex([1,2,3]);
-        let b2 = new HyperVertex([2,4,6]);
-        let a3 = new HyperVertex([1,2,3]);
-        let b3 = new HyperVertex([-1,-2,-3]);
-
-        console.log(a1.dot(b1));
-        console.log(a2.dot(b2));
-        console.log(a3.dot(b3));
-
-        this.#cnv.addEventListener("mousedown", () =>{
-            this.rotateAll(this.#rotationAxis1, 5);
-        });
+        this.#cnv.addEventListener("mousedown", this.#mouseClick.bind(this));
+        document.addEventListener("mousemove", this.#mouseMove.bind(this));
+        document.addEventListener("mouseup", this.#mouseStop.bind(this));
         document.addEventListener("keydown", (e) => {
             if(e.ctrlKey) return;
             let deg = this.arrowSensitivityFactor * this.sensitivity * Math.PI / 180;
 
-            if(e.code === "ArrowRight") this.rotateAll(this.#rotationAxis1,  deg);
-            if(e.code === "ArrowLeft")  this.rotateAll(this.#rotationAxis1, -deg);
-            if(e.code === "ArrowUp")    this.rotateAll(this.#rotationAxis2,  deg);
-            if(e.code === "ArrowDown")  this.rotateAll(this.#rotationAxis2, -deg);
+            if(e.code === "ArrowRight") this.rotateAll(this.#rotationAxisMain, this.#rotationAxis1,  deg);
+            if(e.code === "ArrowLeft")  this.rotateAll(this.#rotationAxisMain, this.#rotationAxis1, -deg);
+            if(e.code === "ArrowUp")    this.rotateAll(this.#rotationAxisMain, this.#rotationAxis2,  deg);
+            if(e.code === "ArrowDown")  this.rotateAll(this.#rotationAxisMain, this.#rotationAxis2, -deg);
         });
     }
  
@@ -98,12 +90,10 @@ export default class Engine{
         return true;
     }
  
-    rotateAll(ax, deg){
+    rotateAll(ax1, ax2, deg){
         for(let i = 0; i < this.#vertices.length; i++)
-            if(!this.#vertices[i].rotate(this.#rotationAxisMain, ax, deg)){
-                console.log('error');
+            if(!this.#vertices[i].rotate(ax1, ax2, deg))
                 return false;
-            }	
         this.draw();
         return true;
     }
@@ -120,26 +110,37 @@ export default class Engine{
             this.setStyle(this.#objects[i].fillColor === undefined ? this.defaultFillColor : this.#objects[i].fillColor, 
                           this.#objects[i].lineColor === undefined ? this.defaultLineColor : this.#objects[i].lineColor,
                           this.#objects[i].lineWidth === undefined ? this.defaultLineWidth : this.#objects[i].lineWidth);
-		for(let j = 0; j < this.#objects[i].faces.length; j++){
-		    let projection = [];
-		    for(let k = 0; k < this.#objects[i].faces[j].length; k++)
-		        projection.push(this.#objects[i].faces[j][k].perspectiveProjection(2, this.#camera, this.#direction));	
+            for(let j = 0; j < this.#objects[i].faces.length; j++){
+                let projection = [];
+                for(let k = 0; k < this.#objects[i].faces[j].length; k++)
+                    projection.push(this.#objects[i].faces[j][k].perspectiveProjection(2, this.#camera, this.#direction, 60));	
 
-		    this.#ctx.beginPath();
-            this.#ctx.moveTo(this.#center.getCord(0) + projection[0][0], this.#center.getCord(1) + projection[0][1]);
-            for(let k = 1; k < projection.length; k++)
-                this.#ctx.lineTo(this.#center.getCord(0) + projection[k][0], this.#center.getCord(1) + projection[k][1]);
-            this.#ctx.closePath();
-            this.#ctx.stroke();
-            this.#ctx.fill();
-		}
+                this.#ctx.beginPath();
+                this.#ctx.moveTo(this.#center.getCord(0) + projection[0][0], this.#center.getCord(1) + projection[0][1]);
+                for(let k = 1; k < projection.length; k++)
+                    this.#ctx.lineTo(this.#center.getCord(0) + projection[k][0], this.#center.getCord(1) + projection[k][1]);
+                this.#ctx.closePath();
+                this.#ctx.stroke();
+                this.#ctx.fill();
+		    }
         } 
     }
  
- 
-    #mouseClick(M){}
-    #mouseStop(){}
-    #mouseMove(M){}
+    #mouseClick(M){
+        this.mouseX = M.clientX;
+        this.mouseY = M.clientY;
+        this.mouseDown = true;
+    } 
+    #mouseStop(){ 
+        this.mouseDown = false; 
+    }
+    #mouseMove(M){
+        if(!this.mouseDown) return;
+        this.rotateAll(this.#rotationAxisMain, this.#rotationAxis1, (M.clientX - this.mouseX) * Math.PI / 360);
+        this.rotateAll(this.#rotationAxisMain, this.#rotationAxis2, (this.mouseY - M.clientY) * Math.PI / 360);;
+        this.mouseX = M.clientX;
+        this.mouseY = M.clientY;
+    }
  
     checkType(obj) {
         return [Cube, Cuboid, Plane, Cross, PseudoSphere, Cone, HyperCube].some(type => obj instanceof type);
@@ -151,11 +152,11 @@ export default class Engine{
 	    let axis2 = parseInt(ax2);
         if(main === axis1 || main === axis2 || axis1 === axis2) return false;
 
-        if(!isNaN(main) && main >= 0 && main <= this.center.getDim())
+        if(!isNaN(main) && main >= 0 && main <= this.#center.getDim())
             this.#rotationAxisMain = main;
-        if(!isNaN(axis1) && axis1 >= 0 && axis1 <= this.center.getDim())
+        if(!isNaN(axis1) && axis1 >= 0 && axis1 <= this.#center.getDim())
             this.#rotationAxis1 = axis1;
-        if(!isNaN(axis2) && axis2 >= 0 && axis2 <= this.center.getDim())
+        if(!isNaN(axis2) && axis2 >= 0 && axis2 <= this.#center.getDim())
             this.#rotationAxis2 = axis2;
     }
  
@@ -177,4 +178,6 @@ export default class Engine{
         this.arrowSensitivityFactor = parseFloat(fac); 
 	    return true;
     }
+
+    getDim(){ return this.#center.getDim(); }
 };

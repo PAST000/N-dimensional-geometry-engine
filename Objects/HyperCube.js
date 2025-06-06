@@ -6,7 +6,6 @@ export default class HyperCube extends Figure{
     constructor(cntr, len, fillClr = new Color(0, 0, 20, 0.4), lineClr = new Color(0, 0, 30, 0.6), lineWdt = 0.4){
         super(cntr, fillClr, lineClr, lineWdt);
         this.length = parseFloat(len);
-		console.log(len, parseFloat(len), this.length);
         this.vertices = [];
         this.faces = [];
 		this.vertexCode = new Array(this.center.getDim());

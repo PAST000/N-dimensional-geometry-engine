@@ -19,12 +19,12 @@ export default class Board{
     #fieldLen;
     #defaultFillColor;
     #defaultLineColor;
-    #defaultLineWidth
+    #defaultLineWidth;
 
     constructor(canvas, sizes, fieldLen, prec, sens, sensFac,
-                fillClr = new Color(0, 0, 120, 0.2), lineClr = new Color(0, 0, 180, 0.2), lineWidth = 0.1, pawnClr = new Color(40, 40, 40, 0.35)){
+                fillClr = new Color(0, 0, 120, 0.2), lineClr = new Color(0, 0, 180, 0.2), pawnClr = new Color(40, 40, 40, 0.35), lineWidth = 0.1){
         if(!Array.isArray(sizes) || sizes.length < 3) throw "Incorrect sizes";
-        if(typeof fieldLen !== "number" || isNaN(fielLen) || fieldLen <= 0) throw "Incorrect field length.";
+        if(typeof fieldLen !== "number" || isNaN(fieldLen) || fieldLen <= 0) throw "Incorrect field length.";
         if(!fillClr instanceof Color) throw "Filling color must be an instance of Color.";
         if(!lineClr instanceof Color) throw "Line color must be an instance of Color.";
         if(!pawnClr instanceof Color) throw "Pawn color must be an instance of Color.";
@@ -36,7 +36,7 @@ export default class Board{
     
         this.#defaultFillColor = fillClr;
         this.#defaultLineColor = lineClr;
-        this.#defaultLineWidth = pawnClr;
+        this.#defaultLineWidth = lineWidth;
         this.#pawnsColors = [pawnClr];
     
         for(let i = 0; i < this.#sizes.length; i++){
@@ -48,9 +48,10 @@ export default class Board{
     }
  
     generateFields(){
-        let fieldCenter = new FieldCenter(this.#engine.getDims(), this.#fieldLen, [...this.#sizes]);
+        let fieldCenter = new FieldCenter(this.#engine.getDim(), this.#fieldLen, [...this.#sizes]);
         for(let i = 0; i < this.#counts[this.#counts.length - 1]; i++){
             this.#fields.push(new Cube(fieldCenter.toVertex(), this.#fieldLen, this.#defaultFillColor, this.#defaultLineColor, this.#defaultLineWidth));
+            console.log();
             fieldCenter.increment();
         }
     }
@@ -79,7 +80,7 @@ class FieldCenter{
     #cords = [];
     #dimension;
     #fieldLen;
-    #sizes = [];  // TODO czy na pewno najniższy...najwyższy czy może najwyższy...najniższy(wymiar)
+    #sizes = []; 
  
     constructor(dim, fieldLen, sizes){
         if(!Number.isInteger(dim) || dim < 3) throw "Incorrect dimension.";

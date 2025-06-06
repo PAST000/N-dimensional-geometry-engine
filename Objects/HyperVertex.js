@@ -21,12 +21,15 @@ export default class HyperVertex{
         return new HyperVertex(arr);
     }
 
-    perspectiveProjection(dim, camera, direction){
+    perspectiveProjection(dim, camera, direction, k = 1){
         if(!(camera instanceof HyperVertex) || !(direction instanceof HyperVertex)) return false;
+        if(typeof k !== "number" || k == 0) return false;
 
         let v = this.toSubtracted(camera);
-        let scale = 1/direction.dot(v);
+        let scale = k/(direction.dot(v));
         if(!(v instanceof HyperVertex) || typeof scale !== "number") return false;
+
+        console.log(scale, v, direction);
 
         let arr = v.cords.slice(0, dim);
         for(let i = 0; i < arr.length; i++)
@@ -82,9 +85,9 @@ export default class HyperVertex{
         if(axis1 < 0 || axis1 >= this.cords.length || axis2 < 0 || axis2 >= this.cords.length || isNaN(axis1) || isNaN(axis2) || axis1 === axis2) return false;
         if(axis1 > axis2) return this.rotate(axis2, axis1, deg);
         if(this.cords.length <= 3)
-	    return this.rotate3D([(axis1 !== 1 ? 1 : 0), 
-				              ((axis1 === 1 && axis2 === 3) ? 1 : 0), 
-				              ((axis1 === 1 && axis2 === 2) ? 1 : 0)], 
+	    return this.rotate3D([(axis1 !== 0 ? 1 : 0), 
+				              ((axis1 === 0 && axis2 === 2) ? 1 : 0), 
+				              ((axis1 === 0 && axis2 === 1) ? 1 : 0)], 
 				              deg);
 
         let xl = this.cords[axis1];
