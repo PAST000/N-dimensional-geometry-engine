@@ -1,6 +1,5 @@
-import Figure from "./Figure.js";
-import HyperVertex from "./HyperVertex.js";
-import Color from "./Color.js";
+import Figure from "./base/Figure.js";
+import Color from "./base/Color.js";
 
 export default class Cone extends Figure{
     constructor(cntr, rad, height, precision, fillColor = new Color(0, 0, 50, 0.2), lineColor = new Color(0, 0, 80, 0.5), lineWidth = 0.4){  //precision - liczba wierzchołków podstawy
