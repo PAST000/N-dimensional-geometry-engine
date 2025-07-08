@@ -1,13 +1,13 @@
-import HyperVertex from "./Objects/HyperVertex.js";
-import Color from "./Objects/Color.js";
+import HyperVertex from "./Objects/base/HyperVertex.js";
+import Color from "./Objects/base/Color.js";
  
-import Cube from "./Objects/Cube.js";
-import Cuboid from "./Objects/Cuboid.js";
-import Plane from "./Objects/Plane.js";
 import Cross from "./Objects/Cross.js";
 import PseudoSphere from "./Objects/PseudoSphere.js";
 import Cone from "./Objects/Cone.js";
 import HyperCube from "./Objects/HyperCube.js";
+import HyperCuboid from "./Objects/HyperCuboid.js";
+import CubicFrame from "./Objects/CubicFrame.js";
+import Arrow from "./Objects/Arrow.js";
  
 export default class Engine{
     #cnv; 
@@ -37,8 +37,8 @@ export default class Engine{
         this.mouseInitialY = 0;
 
         this.updateCenter();
-        this.#camera = new HyperVertex([0,0,325,0]);
-        this.#direction = new HyperVertex([0,0,1,0]);
+        this.#camera = new HyperVertex([0,0,230,0]);
+        this.#direction = new HyperVertex([0,0,-1,0]);
 
         this.#cnv.addEventListener("mousedown", this.#mouseClick.bind(this));
         document.addEventListener("mousemove", this.#mouseMove.bind(this));
@@ -61,9 +61,9 @@ export default class Engine{
  
     updateVertices(){
 	    let newVertices = new Set();
-        for(let i = 0; i < this.#objects.length; i++)
-            for(let j = 0; j < this.#objects[i].vertices.length; j++)
-                newVertices.add(this.#objects[i].vertices[j]);   
+        for(let obj of this.#objects)
+            for(let vert of obj.vertices)
+                newVertices.add(vert);   
         this.#vertices = Array.from(newVertices);
         this.draw();
     }
@@ -75,8 +75,21 @@ export default class Engine{
 	    return true;
     }
  
+    addObjects(objs){
+        let error = false;
+        for(let obj of objs)
+            if(!this.checkType(obj)) {
+                error = true;
+                break;
+            }
+            else 
+                this.#objects.push(obj);
+        this.updateVertices();
+        return !error;
+    }
+
     delObject(obj){
-        let id = this.#objects.indexof(obj);
+        let id = this.#objects.indexOf(obj);
         if(id < 0) return false;
         this.#objects.splice(id, 1);
         this.updateVertices();
@@ -91,38 +104,73 @@ export default class Engine{
     }
  
     rotateAll(ax1, ax2, deg){
-        for(let i = 0; i < this.#vertices.length; i++)
-            if(!this.#vertices[i].rotate(ax1, ax2, deg))
+        for(let vert of this.#vertices)
+            if(!vert.rotate(ax1, ax2, deg))
                 return false;
         this.draw();
         return true;
     }
  
-    setStyle(fillColor = this.defaultFillColor, lineColor = this.defaultLineColor, lineWidth = this.defaultLineWidth){
-        if(fillColor instanceof Color) this.#ctx.fillStyle = fillColor.toString();
-        if(lineColor instanceof Color) this.#ctx.strokeStyle = lineColor.toString();
-        if(typeof lineWidth === "number" && !isNaN(lineWidth) && lineWidth >= 0) this.#ctx.lineWidth = lineWidth;
+    setStyle(fillColor, lineColor, lineWidth, setFillColor = true, setLineColor = true, setLineWidth = true){
+        if(setFillColor) this.#ctx.fillStyle =   ((fillColor instanceof Color)    ? fillColor.toString() : this.defaultFillColor.toString());
+        if(setLineColor) this.#ctx.strokeStyle = ((lineColor instanceof Color)    ? lineColor.toString() : this.defaultLineColor.toString());
+        if(setLineWidth) this.#ctx.lineWidth =   ((typeof lineWidth === "number") ? lineWidth            : this.defaultLineWidth);
     }
  
     draw(){
         this.#ctx.clearRect(0, 0, this.#cnv.offsetWidth, this.#cnv.offsetHeight);
-        for(let i = 0; i < this.#objects.length; i++){
-            this.setStyle(this.#objects[i].fillColor === undefined ? this.defaultFillColor : this.#objects[i].fillColor, 
-                          this.#objects[i].lineColor === undefined ? this.defaultLineColor : this.#objects[i].lineColor,
-                          this.#objects[i].lineWidth === undefined ? this.defaultLineWidth : this.#objects[i].lineWidth);
-            for(let j = 0; j < this.#objects[i].faces.length; j++){
-                let projection = [];
-                for(let k = 0; k < this.#objects[i].faces[j].length; k++)
-                    projection.push(this.#objects[i].faces[j][k].perspectiveProjection(2, this.#camera, this.#direction, 60));	
+        for(let obj of this.#objects){ 
+            let j = 0;
+            for(let face of obj.faces){
+                let projection = face.perspectiveProjection(2, this.#camera, this.#direction, 60);
+                if(projection.length === 0) continue;
+
+                this.setStyle(
+                    (face.fillColor       ?? obj.fillColor       ?? null),
+                    (face.lineColors?.[0] ?? obj.lineColors?.[0] ?? null),
+                    (face.lineWidths?.[0] ?? obj.lineWidths?.[0] ?? null)
+                );
 
                 this.#ctx.beginPath();
-                this.#ctx.moveTo(this.#center.getCord(0) + projection[0][0], this.#center.getCord(1) + projection[0][1]);
-                for(let k = 1; k < projection.length; k++)
-                    this.#ctx.lineTo(this.#center.getCord(0) + projection[k][0], this.#center.getCord(1) + projection[k][1]);
+                this.#ctx.moveTo(
+                    this.#center.getCord(0) + projection[0][0],
+                    this.#center.getCord(1) + projection[0][1]
+                );
+
+                for (let k = 1; k < projection.length; k++) {
+                    this.#ctx.lineTo(
+                        this.#center.getCord(0) + projection[k][0],
+                        this.#center.getCord(1) + projection[k][1]
+                    );
+                }
                 this.#ctx.closePath();
-                this.#ctx.stroke();
                 this.#ctx.fill();
-		    }
+
+                for (let k = 0; k < projection.length; k++) {
+                    let a = projection[k];
+                    let b = projection[(k + 1) % projection.length];
+
+                    this.setStyle(
+                        null,
+                        face.lineColors?.[k] ?? obj.lineColors?.[k] ?? null,
+                        face.lineWidths?.[k] ?? obj.lineWidths?.[k] ?? null,
+                        false
+                    );
+
+                    this.#ctx.beginPath();
+                    this.#ctx.moveTo(
+                        this.#center.getCord(0) + a[0],
+                        this.#center.getCord(1) + a[1]
+                    );
+                    this.#ctx.lineTo(
+                        this.#center.getCord(0) + b[0],
+                        this.#center.getCord(1) + b[1]
+                    );
+                    this.#ctx.stroke();
+                }
+
+                j++;
+            }
         } 
     }
  
@@ -137,13 +185,13 @@ export default class Engine{
     #mouseMove(M){
         if(!this.mouseDown) return;
         this.rotateAll(this.#rotationAxisMain, this.#rotationAxis1, (M.clientX - this.mouseX) * Math.PI / 360);
-        this.rotateAll(this.#rotationAxisMain, this.#rotationAxis2, (this.mouseY - M.clientY) * Math.PI / 360);;
+        this.rotateAll(this.#rotationAxisMain, this.#rotationAxis2, (this.mouseY - M.clientY) * Math.PI / 360);
         this.mouseX = M.clientX;
         this.mouseY = M.clientY;
     }
  
     checkType(obj) {
-        return [Cube, Cuboid, Plane, Cross, PseudoSphere, Cone, HyperCube].some(type => obj instanceof type);
+        return [Cross, PseudoSphere, Cone, HyperCube, HyperCuboid, CubicFrame, Arrow].some(type => obj instanceof type);
     }
  
     setRotationAxises(m, ax1, ax2){
@@ -162,9 +210,9 @@ export default class Engine{
  
     setPrecision(prec) { 
 	    if(typeof prec !== "number" || isNaN(prec) || prec <= 4) return false;
-        this.precision = parsetInt(prec);
-        for(let i = 0; i < this.#objects.length; i++)
-		if(!this.#objects[i].setPrecision(this.precision)) return false;
+        this.precision = parseInt(prec);
+        for(let obj of this.#objects)
+		    if(!obj.setPrecision(this.precision)) return false;
 	    this.updateVertices();
         return true;
     }

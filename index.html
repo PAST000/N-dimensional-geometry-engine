@@ -17,11 +17,13 @@
     </style>
     <script type="module">
         import Engine from "./Engine.js";
-        import Board from "./Board.js";
-        import HyperVertex from "./Objects/HyperVertex.js";
+        import Color from "./Objects/base/Color.js";
+        import HyperVertex from "./Objects/base/HyperVertex.js";
         import HyperCube from "./Objects/HyperCube.js";
-
-        const dims = 4;
+        import HyperCuboid from "./Objects/HyperCuboid.js";
+        import CubicFrame from "./Objects/CubicFrame.js";
+        import Arrow from "./Objects/Arrow.js";
+        import Binomial from "./binomialTheorem.js";
 
         window.onload = function() {
             const canvas = document.getElementById("cnv");
@@ -31,26 +33,95 @@
             }
 
             const engine = new Engine(canvas, 5, 1.1, 6);
-            engine.addObject(new HyperCube(new HyperVertex([0,0,0,0]), 300));
+            const binomial = new Binomial(new HyperVertex([0,0,0,0]), 4, 150, 50, 
+                                         [new Color(255, 0, 0, 0.3), new Color(0, 255, 0, 0.3), new Color(0,0, 255, 0.3), new Color(255, 255, 0, 0.3), new Color(0, 255, 255, 0.3)], 
+                                         null, 
+                                         [0,0,0,0,0,0]);
+            engine.addObjects(binomial.getObjects());
             engine.draw();
            
-            const deg = 5;
-            document.getElementById("X;Y").onclick = function(){ engine.rotateAll(0, 1, deg*Math.PI/360); }
-            document.getElementById("X;Z").onclick = function(){ engine.rotateAll(0, 2, deg*Math.PI/360); }
-            document.getElementById("X;W").onclick = function(){ engine.rotateAll(0, 3, deg*Math.PI/360); }
-            document.getElementById("Y;Z").onclick = function(){ engine.rotateAll(1, 2, deg*Math.PI/360); }
-            document.getElementById("Y;W").onclick = function(){ engine.rotateAll(1, 3, deg*Math.PI/360); }
-            document.getElementById("Z;W").onclick = function(){ engine.rotateAll(2, 3, deg*Math.PI/360); }
+            const deg = 5, interval = 60;
+            let intervalId = null;
+            function rotateAll(ax1, ax2, dir){
+                if (intervalId === null) return;
+                engine.rotateAll(ax1, ax2, dir*deg*Math.PI/360);
+            }
+            function stopFunction() {
+                if (intervalId !== null) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+            }
+
+            document.getElementById("X;Y").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(0,1,1), interval); });
+            document.getElementById("X;Z").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(0,2,1), interval); });
+            document.getElementById("X;W").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(0,3,1), interval); });
+            document.getElementById("Y;Z").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(1,2,1), interval); });
+            document.getElementById("Y;W").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(1,3,1), interval); });
+            document.getElementById("Z;W").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(2,3,1), interval); });
+
+            document.getElementById("-X;Y").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(0,1,-1), interval); });
+            document.getElementById("-X;Z").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(0,2,-1), interval); });
+            document.getElementById("-X;W").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(0,3,-1), interval); });
+            document.getElementById("-Y;Z").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(1,2,-1), interval); });
+            document.getElementById("-Y;W").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(1,3,-1), interval); });
+            document.getElementById("-Z;W").addEventListener('mousedown', () => { intervalId = setInterval(() => rotateAll(2,3,-1), interval); });
+
+            /*document.getElementById("X;Y").addEventListener('mouseleave', stopFunction);
+            document.getElementById("X;Z").addEventListener('mouseleave', stopFunction);
+            document.getElementById("X;W").addEventListener('mouseleave', stopFunction);
+            document.getElementById("Y;Z").addEventListener('mouseleave', stopFunction);
+            document.getElementById("Y;W").addEventListener('mouseleave', stopFunction);
+            document.getElementById("Z;W").addEventListener('mouseleave', stopFunction);
+
+            document.getElementById("-X;Y").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-X;Z").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-X;W").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-Y;Z").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-Y;W").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-Z;W").addEventListener('mouseleave', stopFunction);
+
+            document.getElementById("X;Y").addEventListener('mouseup', stopFunction);
+            document.getElementById("X;Z").addEventListener('mouseup', stopFunction);
+            document.getElementById("X;W").addEventListener('mouseup', stopFunction);
+            document.getElementById("Y;Z").addEventListener('mouseup', stopFunction);
+            document.getElementById("Y;W").addEventListener('mouseup', stopFunction);
+            document.getElementById("Z;W").addEventListener('mouselup', stopFunction);
+
+            document.getElementById("-X;Y").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-X;Z").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-X;W").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-Y;Z").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-Y;W").addEventListener('mouseleave', stopFunction);
+            document.getElementById("-Z;W").addEventListener('mouseleave', stopFunction);*/
+
+            document.addEventListener('mouseup', stopFunction);
+            document.addEventListener('mouseleave', stopFunction);
         };
+        
     </script>
 </head>
 <body>
-    <canvas id="cnv"></canvas>
-    <button id="X;Y">X;Y</button>
-    <button id="X;Z">X;Z</button>
-    <button id="X;W">X;W</button>
-    <button id="Y;Z">Y;Z</button>
-    <button id="Y;W">Y;W</button>
-    <button id="Z;W">Z;W</button>
+    <section>
+        <canvas id="cnv"></canvas>
+        <button id="X;Y">&nbsp;X;Y</button>
+        <button id="X;Z">&nbsp;X;Z</button>
+        <button id="X;W">&nbsp;X;W</button>
+        <button id="Y;Z">&nbsp;Y;Z</button>
+        <button id="Y;W">&nbsp;Y;W</button>
+        <button id="Z;W">&nbsp;Z;W</button><br>
+        <button id="-X;Y">-X;Y</button>
+        <button id="-X;Z">-X;Z</button>
+        <button id="-X;W">-X;W</button>
+        <button id="-Y;Z">-Y;Z</button>
+        <button id="-Y;W">-Y;W</button>
+        <button id="-Z;W">-Z;W</button><br>
+        <button id="camera-X">-X</button>
+        <button id="camera+X">+X</button>
+        <button id="camera-Y">-Y</button>
+        <button id="camera+Y">+Y</button>
+        <button id="camera-Z">-Z</button>
+        <button id="camera+Z">+Z</button>
+    </section>
 </body>
 </html>
