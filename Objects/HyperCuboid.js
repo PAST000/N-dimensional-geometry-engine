@@ -2,10 +2,10 @@ import Figure from "./base/Figure.js";
 import HyperVertex from "./base/HyperVertex.js";
 import Color from "./base/Color.js";
 
-export default class HyperCube extends Figure{
-    constructor(cntr, len, fillClr, lineClr, lineWdt){
+export default class HyperCuboid extends Figure{
+    constructor(cntr, lens, fillClr, lineClr, lineWdt){
         super(cntr, fillClr, lineClr, lineWdt);
-        this.length = parseFloat(len);
+        this.lengths = lens;
         this.vertices = [];
         this.faces = [];
 		this.vertexCode = new Array(this.center.getDim());
@@ -35,10 +35,7 @@ export default class HyperCube extends Figure{
 					this.appendFace([this.vertices[this.codeToId(code0)],
 									 this.vertices[this.codeToId(code1)],
 									 this.vertices[this.codeToId(code2)],
-									 this.vertices[this.codeToId(code3)]],
-									 new Color(255,255,0,0.5),
-									 [new Color(255,0,0,0.7), new Color(0,255,0,0.7), new Color(0,0,255,0.7), new Color(0,255,255,0.7)],
-									 [0.7,0.7,0.7,0.7]
+									 this.vertices[this.codeToId(code3)]]
 									);
 					this.incrementCode([i,j]);
 				}
@@ -60,7 +57,7 @@ export default class HyperCube extends Figure{
     codeToVertex(){
 		let vertArr = this.center.getCords();
 		for(let i = 0; i < this.vertexCode.length; i++)
-			vertArr[i] += this.length/2  * (this.vertexCode[i] === 1 ? 1 : -1);
+			vertArr[i] += (this.vertexCode[i] === 1 ? 1 : -1) * (this.lengths[i] ?? this.lengths[0])/2;
 		return new HyperVertex(vertArr);
     }
     codeToId(code){ 

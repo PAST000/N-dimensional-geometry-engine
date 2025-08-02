@@ -1,54 +1,53 @@
-import Figure from "./Figure.js";
-import HyperVertex from "./HyperVertex.js";
-import Color from "./Color.js";
+import Figure from "./base/Figure.js";
+import Color from "./base/Color.js";
 
 export default class Cross extends Figure{
     constructor(cntr, len, arm = 0.11, fillClr = new Color(0, 0, 50, 0.5), lineClr = new Color(0, 0, 80, 0.7), lineWdt = 0.4){ 
         super(cntr, fillClr, lineClr, lineWdt);
         this.length = parseFloat(len);
         this.armFactor = parseFloat(arm);   // Z przedziału (0;1), współczynnik szerokości ramienia do ogólnej szerokości
-        this.armSize = parseFloat(len*arm);
+        this.armSize = parseFloat(this.length*this.armFactor);
 
 	// Kolejność wierzchołków: góra, prawo, dół, lewo, za, przed, środek
         this.vertices = [  
-	    this.center.toTranslated( this.armSize/2, this.length/2,  this.armSize/2),
-            this.center.toTranslated( this.armSize/2, this.length/2, -this.armSize/2),
-            this.center.toTranslated(-this.armSize/2, this.length/2, -this.armSize/2),
-            this.center.toTranslated(-this.armSize/2, this.length/2,  this.armSize/2),
+	        this.center.toTranslated([ this.armSize/2, this.length/2,  this.armSize/2]),
+            this.center.toTranslated([ this.armSize/2, this.length/2, -this.armSize/2]),
+            this.center.toTranslated([-this.armSize/2, this.length/2, -this.armSize/2]),
+            this.center.toTranslated([-this.armSize/2, this.length/2,  this.armSize/2]),
 
-            this.center.toTranslated( this.length/2,  this.length/2,  this.armSize/2),
-            this.center.toTranslated( this.length/2, -this.length/2,  this.armSize/2),
-            this.center.toTranslated( this.length/2, -this.length/2, -this.armSize/2),
-            this.center.toTranslated( this.length/2,  this.length/2, -this.armSize/2),
+            this.center.toTranslated([ this.length/2,  this.length/2,  this.armSize/2]),
+            this.center.toTranslated([ this.length/2, -this.length/2,  this.armSize/2]),
+            this.center.toTranslated([ this.length/2, -this.length/2, -this.armSize/2]),
+            this.center.toTranslated([ this.length/2,  this.length/2, -this.armSize/2]),
 
-            this.center.toTranslated( this.armSize/2, -this.length/2,  this.armSize/2),
-            this.center.toTranslated( this.armSize/2, -this.length/2, -this.armSize/2),
-            this.center.toTranslated(-this.armSize/2, -this.length/2, -this.armSize/2),
-            this.center.toTranslated(-this.armSize/2, -this.length/2,  this.armSize/2),
+            this.center.toTranslated([ this.armSize/2, -this.length/2,  this.armSize/2]),
+            this.center.toTranslated([ this.armSize/2, -this.length/2, -this.armSize/2]),
+            this.center.toTranslated([-this.armSize/2, -this.length/2, -this.armSize/2]),
+            this.center.toTranslated([-this.armSize/2, -this.length/2,  this.armSize/2]),
 
-            this.center.toTranslated(-this.length/2,  this.armSize/2,  this.armSize/2),
-            this.center.toTranslated(-this.length/2, -this.armSize/2,  this.armSize/2),
-            this.center.toTranslated(-this.length/2, -this.armSize/2, -this.armSize/2),
-            this.center.toTranslated(-this.length/2,  this.armSize/2, -this.armSize/2),
+            this.center.toTranslated([-this.length/2,  this.armSize/2,  this.armSize/2]),
+            this.center.toTranslated([-this.length/2, -this.armSize/2,  this.armSize/2]),
+            this.center.toTranslated([-this.length/2, -this.armSize/2, -this.armSize/2]),
+            this.center.toTranslated([-this.length/2,  this.armSize/2, -this.armSize/2]),
 
-            this.center.toTranslated( this.armSize/2,  this.armSize/2, this.length/2),
-            this.center.toTranslated( this.armSize/2, -this.armSize/2, this.length/2),
-            this.center.toTranslated(-this.armSize/2, -this.armSize/2, this.length/2),
-            this.center.toTranslated(-this.armSize/2,  this.armSize/2, this.length/2),
+            this.center.toTranslated([ this.armSize/2,  this.armSize/2, this.length/2]),
+            this.center.toTranslated([ this.armSize/2, -this.armSize/2, this.length/2]),
+            this.center.toTranslated([-this.armSize/2, -this.armSize/2, this.length/2]),
+            this.center.toTranslated([-this.armSize/2,  this.armSize/2, this.length/2]),
 
-	    this.center.toTranslated( this.armSize/2,  this.armSize/2, -this.length/2),
-            this.center.toTranslated( this.armSize/2, -this.armSize/2, -this.length/2),
-            this.center.toTranslated(-this.armSize/2, -this.armSize/2, -this.length/2),
-            this.center.toTranslated(-this.armSize/2,  this.armSize/2, -this.length/2),
+	        this.center.toTranslated([ this.armSize/2,  this.armSize/2, -this.length/2]),
+            this.center.toTranslated([ this.armSize/2, -this.armSize/2, -this.length/2]),
+            this.center.toTranslated([-this.armSize/2, -this.armSize/2, -this.length/2]),
+            this.center.toTranslated([-this.armSize/2,  this.armSize/2, -this.length/2]),
 
-            this.center.toTranslated( this.armSize/2,  this.armSize/2,  this.armSize/2),
-            this.center.toTranslated( this.armSize/2, -this.armSize/2,  this.armSize/2),
-            this.center.toTranslated(-this.armSize/2, -this.armSize/2,  this.armSize/2),
-            this.center.toTranslated(-this.armSize/2,  this.armSize/2,  this.armSize/2),
-            this.center.toTranslated( this.armSize/2,  this.armSize/2, -this.armSize/2),
-            this.center.toTranslated( this.armSize/2, -this.armSize/2, -this.armSize/2),
-            this.center.toTranslated(-this.armSize/2, -this.armSize/2, -this.armSize/2),
-            this.center.toTranslated(-this.armSize/2,  this.armSize/2, -this.armSize/2) 
+            this.center.toTranslated([ this.armSize/2,  this.armSize/2,  this.armSize/2]),
+            this.center.toTranslated([ this.armSize/2, -this.armSize/2,  this.armSize/2]),
+            this.center.toTranslated([-this.armSize/2, -this.armSize/2,  this.armSize/2]),
+            this.center.toTranslated([-this.armSize/2,  this.armSize/2,  this.armSize/2]),
+            this.center.toTranslated([ this.armSize/2,  this.armSize/2, -this.armSize/2]),
+            this.center.toTranslated([ this.armSize/2, -this.armSize/2, -this.armSize/2]),
+            this.center.toTranslated([-this.armSize/2, -this.armSize/2, -this.armSize/2]),
+            this.center.toTranslated([-this.armSize/2,  this.armSize/2, -this.armSize/2]) 
         ];
 
         this.faces = [ 

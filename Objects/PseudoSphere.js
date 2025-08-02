@@ -1,6 +1,6 @@
-import Figure from "./Figure.js";
-import HyperVertex from "./HyperVertex.js";
-import Color from "./Color.js";
+import Figure from "./base/Figure.js";
+import HyperVertex from "./base/HyperVertex.js";
+import Color from "./base/Color.js";
 
 export default class PseudoSphere extends Figure{
     constructor(cntr, radius, prec, fillClr = new Color(0, 0, 50, 0.3), lineClr = new Color(0, 0, 80, 0.5), lineWdt = 0.4){  //precision - liczba wierzchołków w największym przekroju
