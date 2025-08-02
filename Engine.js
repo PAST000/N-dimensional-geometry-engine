@@ -38,7 +38,7 @@ export default class Engine{
 
         this.updateCenter();
         this.#camera = new HyperVertex([0,0,230,0]);
-        this.#direction = new HyperVertex([0,0,-1,0]);
+        this.#direction = new HyperVertex([0,0,1,0]);
 
         this.#cnv.addEventListener("mousedown", this.#mouseClick.bind(this));
         document.addEventListener("mousemove", this.#mouseMove.bind(this));
@@ -112,23 +112,56 @@ export default class Engine{
     }
  
     setStyle(fillColor, lineColor, lineWidth, setFillColor = true, setLineColor = true, setLineWidth = true){
-        if(setFillColor) this.#ctx.fillStyle =   ((fillColor instanceof Color)    ? fillColor.toString() : this.defaultFillColor.toString());
-        if(setLineColor) this.#ctx.strokeStyle = ((lineColor instanceof Color)    ? lineColor.toString() : this.defaultLineColor.toString());
-        if(setLineWidth) this.#ctx.lineWidth =   ((typeof lineWidth === "number") ? lineWidth            : this.defaultLineWidth);
+        if(setFillColor)
+            if(fillColor === "transparent") this.#ctx.fillStyle = "rgba(0,0,0,0)";
+            else this.#ctx.fillStyle = ((fillColor instanceof Color) ? fillColor.toString() : this.defaultFillColor.toString());
+
+        if(setLineColor)
+            if(lineColor === "transparent") this.#ctx.strokeStyle = "rgba(0,0,0,0)";
+            else this.#ctx.strokeStyle = ((lineColor instanceof Color) ? lineColor.toString() : this.defaultLineColor.toString());
+
+        if(setLineWidth) this.#ctx.lineWidth =   ((typeof lineWidth === "number") ? lineWidth : this.defaultLineWidth);
     }
  
     draw(){
         this.#ctx.clearRect(0, 0, this.#cnv.offsetWidth, this.#cnv.offsetHeight);
+
         for(let obj of this.#objects){ 
-            let j = 0;
-            for(let face of obj.faces){
+            let i = 0;
+            let sortedFaces = [...obj.faces];
+            sortedFaces.sort((a, b) => b.getAvgDepth() - a.getAvgDepth());
+
+            for(let face of sortedFaces){
                 let projection = face.perspectiveProjection(2, this.#camera, this.#direction, 60);
                 if(projection.length === 0) continue;
 
-                this.setStyle(
-                    (face.fillColor       ?? obj.fillColor       ?? null),
-                    (face.lineColors?.[0] ?? obj.lineColors?.[0] ?? null),
-                    (face.lineWidths?.[0] ?? obj.lineWidths?.[0] ?? null)
+                // Rysowanie krawędzi
+                for(let j = 0; j < projection.length; j++){
+                    this.setStyle(null, null, null);  // TODO
+                    this.#ctx.beginPath();
+                    this.#ctx.moveTo(this.#center.getCord(0) + projection[j][0], 
+                                     this.#center.getCord(1) + projection[j][1]);     
+                    this.#ctx.lineTo(this.#center.getCord(0) + projection[(j+1) % projection.length][0], 
+                                     this.#center.getCord(1) + projection[(j+1) % projection.length][1]);                 
+                    this.#ctx.stroke();
+                    this.#ctx.closePath();
+                }
+                
+                // Rysowanie ścian
+                this.setStyle(face.fillColor ?? obj.fillColor, "transparent", 0.1);
+                this.#ctx.moveTo(this.#center.getCord(0) + projection[0][0], 
+                                 this.#center.getCord(1) + projection[0][1]);
+                this.#ctx.beginPath();
+                for(let j = 1; j <= projection.length; j++)
+                    this.#ctx.lineTo(this.#center.getCord(0) + projection[j % projection.length][0], 
+                                     this.#center.getCord(1) + projection[j % projection.length][1]);            
+                this.#ctx.closePath();
+                this.#ctx.fill();
+
+                /*this.setStyle(
+                    (face.fillColor ?? obj.fillColor ?? null),
+                    transparent,
+                    0
                 );
 
                 this.#ctx.beginPath();
@@ -137,12 +170,11 @@ export default class Engine{
                     this.#center.getCord(1) + projection[0][1]
                 );
 
-                for (let k = 1; k < projection.length; k++) {
+                for (let k = 1; k < projection.length; k++) 
                     this.#ctx.lineTo(
                         this.#center.getCord(0) + projection[k][0],
                         this.#center.getCord(1) + projection[k][1]
                     );
-                }
                 this.#ctx.closePath();
                 this.#ctx.fill();
 
@@ -150,11 +182,11 @@ export default class Engine{
                     let a = projection[k];
                     let b = projection[(k + 1) % projection.length];
 
+
                     this.setStyle(
                         null,
                         face.lineColors?.[k] ?? obj.lineColors?.[k] ?? null,
-                        face.lineWidths?.[k] ?? obj.lineWidths?.[k] ?? null,
-                        false
+                        face.lineWidths?.[k] ?? obj.lineWidths?.[k] ?? null
                     );
 
                     this.#ctx.beginPath();
@@ -167,9 +199,8 @@ export default class Engine{
                         this.#center.getCord(1) + b[1]
                     );
                     this.#ctx.stroke();
-                }
-
-                j++;
+                }*/
+                i++;
             }
         } 
     }

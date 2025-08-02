@@ -12,19 +12,14 @@ export default class Binomial{
         this.lineWidths = lineWdts;
         this.#objects = new Array();
 
-        console.log(this.fillColors, this.lineColors, this.lineWidths);
-
         for(let i = 0; i <= this.degree; i++){
             let arr = generatePermutations(this.degree-i, i, this.A, this.B);
-
-            for(let comb of arr){
-                console.log(this.fillColors?.[i]);
+            for(let comb of arr)
                 this.#objects.push(new HyperCuboid(this.center.toTranslated([...comb].map((x) => (x == this.A ? -this.B/2 : this.A/2))),
                                                    comb, 
                                                    this.fillColors?.[i], 
                                                    this.lineColors?.[i], 
                                                    this.lineWidths?.[i]));
-            }
         }
     }
 

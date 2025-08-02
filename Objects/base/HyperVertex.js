@@ -26,7 +26,7 @@ export default class HyperVertex{
         if(typeof k !== "number" || k == 0) return false;
 
         let v = this.toSubtracted(camera);
-        let scale = k/(direction.dot(v));
+        let scale = Math.abs(k/(direction.dot(v)));
         if(!(v instanceof HyperVertex) || typeof scale !== "number") return false;
 
         let arr = v.cords.slice(0, dim);

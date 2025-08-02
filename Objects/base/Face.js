@@ -1,3 +1,5 @@
+import HyperVertex from "./HyperVertex.js";
+
 export default class Face{
     constructor(arr, fillClr, lineClrs, lineWdts){
         if(typeof arr === "undefined" || arr.length == 0)            throw("Vertices array must not be empty.");
@@ -19,6 +21,21 @@ export default class Face{
         for(let i = 1; i < this.vertices.length; i++)
             projected.push(this.vertices[i].perspectiveProjection(dimention, camera, direction, scale));
         return projected;
+    }
+
+    getAvgDepth(){
+        let avgVert = new HyperVertex(Array(this.vertices[0].getDim()).fill(0));
+        let avgDepth = 0;
+
+        for(let i = 0; i < this.vertices.length; i++)
+            avgVert.add(this.vertices[i]);
+        avgVert.scale(parseFloat(1.0/this.vertices.length));
+
+        for(let i = 2; i < avgVert.getDim(); i++)
+            avgDepth += avgVert.getCord(i);
+        avgDepth /= (avgVert.getDim()-2);
+
+        return avgDepth;
     }
 
     setFillColor(fillClr, id){
