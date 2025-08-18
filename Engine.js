@@ -8,7 +8,10 @@ import HyperCube from "./Objects/HyperCube.js";
 import HyperCuboid from "./Objects/HyperCuboid.js";
 import CubicFrame from "./Objects/CubicFrame.js";
 import Arrow from "./Objects/Arrow.js";
- 
+import regularSimplex from "./Objects/regularSimplex.js";
+import Cell16 from "./Objects/cell16.js"; 
+import RegularSimplex from "./Objects/regularSimplex.js";
+
 export default class Engine{
     #cnv; 
     #ctx;
@@ -37,7 +40,7 @@ export default class Engine{
         this.mouseInitialY = 0;
 
         this.updateCenter();
-        this.#camera = new HyperVertex([0,0,230,0]);
+        this.#camera    = new HyperVertex([0,0,170,0]);
         this.#direction = new HyperVertex([0,0,1,0]);
 
         this.#cnv.addEventListener("mousedown", this.#mouseClick.bind(this));
@@ -124,6 +127,7 @@ export default class Engine{
     }
  
     draw(){
+        console.log(this.#vertices);
         this.#ctx.clearRect(0, 0, this.#cnv.offsetWidth, this.#cnv.offsetHeight);
 
         for(let obj of this.#objects){ 
@@ -222,7 +226,7 @@ export default class Engine{
     }
  
     checkType(obj) {
-        return [Cross, PseudoSphere, Cone, HyperCube, HyperCuboid, CubicFrame, Arrow].some(type => obj instanceof type);
+        return [Cross, PseudoSphere, Cone, HyperCube, HyperCuboid, CubicFrame, Arrow, RegularSimplex, Cell16].some(type => obj instanceof type);
     }
  
     setRotationAxises(m, ax1, ax2){
