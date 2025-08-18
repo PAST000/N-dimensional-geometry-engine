@@ -26,6 +26,7 @@ export default class HyperVertex{
         if(typeof k !== "number" || k == 0) return false;
 
         let v = this.toSubtracted(camera);
+
         let scale = Math.abs(k/(direction.dot(v)));
         if(!(v instanceof HyperVertex) || typeof scale !== "number") return false;
 
@@ -52,6 +53,12 @@ export default class HyperVertex{
     }
 
     translate(arr){
+        if(typeof arr === "number"){
+            for(let i = 0; i < this.getDim(); i++)
+                this.cords[i] += arr;
+            return true;
+        }
+
         if(arr.length > this.cords.length) return false;
         let oldCords = this.cords;
 
@@ -135,6 +142,13 @@ export default class HyperVertex{
         return true;
     }
 
+    normalize(){
+        this.calcLength();
+        for(let i = 0; i < this.cords.length; i++)
+            this.cords[i] /= this.length;
+        this.calcLength();
+    }
+
     toTranslated(arr){
         let vert = new HyperVertex([...this.cords]);
         if(vert.translate(arr) === false) return false;
@@ -160,6 +174,11 @@ export default class HyperVertex{
         if(vert.subtract(other) === false) return false;
         return vert;
     }
+    toNormalized(){
+        let vert = new HyperVertex([...this.cords]);
+        vert.normalize();
+        return vert;
+    }
 
     calcLength(){
         this.length = 0;
@@ -167,6 +186,12 @@ export default class HyperVertex{
             this.length += this.cords[i]*this.cords[i];
         this.length = Math.pow(this.length, 1/2);
         return this.length;
+    }
+
+    setCord(id, val){
+        if(typeof this.cords[id] === "undefined" || typeof val != "number" || isNaN(val)) return false;
+        this.cords[id] = val;
+        return true;
     }
 
     getCord(id){ 
